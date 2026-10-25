@@ -26,7 +26,7 @@ SPARTAN CUE(`USB\VID_2360&PID_7011`)의 MIDI function(`MI_03`)이 `usbaudio.sys`
 - `inf/CueMidiFilter.inx`: 확장 INF
 
 **구조체**
-- `DEVICE_CONTEXT`: `BOOLEAN PatchEnabled`(레지스트리 `PatchEnabled`, 기본 0), `LONG PatchCount`, `LONG DumpCount`
+- `FILTER_CONTEXT`: 1단계는 로그 횟수 카운터(`DumpCount`, `ConfigRequestLogCount`, `RequestLogCount`). 2단계에서 `BOOLEAN PatchEnabled`(레지스트리 `PatchEnabled`, 기본 0)와 `LONG PatchCount`를 추가
 
 **요청 흐름**
 1. `EvtIoInternalDeviceControl` 수신 (병렬 큐, `WdfIoQueueDispatchParallel`)
@@ -44,7 +44,7 @@ SPARTAN CUE(`USB\VID_2360&PID_7011`)의 MIDI function(`MI_03`)이 `usbaudio.sys`
 - usbccgp가 자식에게 IF 3–4만 필터링해 주든 설정 전체(IF 0–5)를 주든 같은 규칙으로 동작한다
 - 이미 정상이거나 조건이 안 맞으면 로그만 남기고 통과 → 펌웨어가 고쳐져도 무해, 같은 응답에 두 번 적용해도 안전
 
-**IRQL·락**: 완료 루틴은 최대 `DISPATCH_LEVEL`이라 페이지 가능 코드·메모리·`DbgPrintEx` 과다 출력 금지(덤프는 시작당 1회로 제한). 카운터는 `InterlockedIncrement`, 별도 락 없음.
+**IRQL·락**: 완료 루틴은 최대 `DISPATCH_LEVEL`이라 페이지 가능 코드·메모리·`DbgPrintEx` 과다 출력 금지(로그는 장치당 횟수로 제한: 설정 디스크립터 덤프 8회, 요청 로그 각 8회/64건. 카운터는 한도에서 멈춘다). 카운터는 `InterlockedIncrement`, 별도 락 없음.
 
 **PnP·전원**: 하위 필터이며 전원 정책 소유자가 아니다. 별도 콜백 없이 WDF 기본 통과 처리에 맡긴다. 제거·절전·비활성화 때 보유 자원은 없다. 장치 재시작 때마다 설정 디스크립터 조회가 다시 보정된다.
 

@@ -11,12 +11,20 @@
 - 필터 위치(상위/하위, 장치 노드/인터페이스 노드)는 미정 → 첫 `/design-doc`에서 결정한다
 - 테스트 시스템(VM/별도 PC)은 준비되면 이 문서에 기록한다: (미정)
 
+## 구성
+- `DrvCUE.sln` → `src/CueMidiFilter.vcxproj` (KMDF 드라이버, 서비스/바이너리 이름 `CueMidiFilter`)
+- `src/`: 드라이버 소스, `inf/CueMidiFilter.inf`: 확장 INF(ASCII로만 작성), `docs/`: 분석·설계 문서
+- 개발 환경: Visual Studio 2026 Community(18.11), WDK 10.0.28000.0 (Spectre 라이브러리 설치됨)
+- 소스는 UTF-8(한글 주석 허용)이며 프로젝트에 `/utf-8`이 설정돼 있다. INF는 한글을 쓰지 않는다
+
 ## 명령어
-Developer 환경(`vcvars64.bat`)이 잡힌 셸에서 실행한다.
-- 빌드: `msbuild DrvCUE.sln /p:Configuration=Debug /p:Platform=x64`
-- 릴리스 빌드: `msbuild DrvCUE.sln /p:Configuration=Release /p:Platform=x64`
-- 코드 분석: 빌드에 `/p:RunCodeAnalysis=true` 추가
-- INF 검증: `infverif /w <INF 경로>`
+이 PC의 셸(Git Bash)에는 `msbuild`가 PATH에 없다. **64비트** MSBuild를 전체 경로로 호출한다(32비트 `Current\Bin\MSBuild.exe`는 InfVerif x86 DLL이 없어 실패한다).
+- MSBuild: `"C:\Program Files\Microsoft Visual Studio\18\Community\MSBuild\Current\Bin\amd64\MSBuild.exe"`
+- 빌드: `MSBuild DrvCUE.sln -nologo -v:minimal -p:Configuration=Debug -p:Platform=x64`
+- 릴리스 빌드: `-p:Configuration=Release`
+- 코드 분석: 빌드에 `-p:RunCodeAnalysis=true` 추가
+- INF 검증: Git Bash에서는 `MSYS_NO_PATHCONV=1`을 설정한 뒤 `"C:\Program Files (x86)\Windows Kits\10\Tools\10.0.28000.0\x64\infverif.exe" /v /w <INF 윈도우 경로>`. 빌드 때도 자동 검증된다
+- 산출물: `x64\<구성>\CueMidiFilter.sys`, 스탬프된 INF, `x64\<구성>\CueMidiFilter\`의 패키지(`.cat` 포함). 서명은 꺼져 있다(`SignMode=Off`)
 - 정적 드라이버 검증(SDV): VS의 Static Driver Verifier에서 KMDF 규칙으로 실행
 - 단위/통합 테스트: 테스트 시스템 준비 후 기록 예정
 
