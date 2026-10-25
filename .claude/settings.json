@@ -1,0 +1,27 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(msbuild:*)",
+      "Bash(infverif:*)",
+      "Bash(inf2cat:*)",
+      "Bash(signtool verify:*)",
+      "Bash(git status)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)"
+    ],
+    "ask": [
+      "Bash(pnputil:*)",
+      "Bash(bcdedit:*)",
+      "Bash(sc:*)",
+      "Bash(verifier:*)",
+      "Bash(devcon:*)",
+      "Bash(signtool sign:*)"
+    ],
+    "deny": [
+      "Read(./**/*.pfx)",
+      "Read(./**/*.pvk)",
+      "Read(./**/*.snk)",
+      "Bash(git push:*)"
+    ]
+  }
+}
