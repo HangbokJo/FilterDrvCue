@@ -1,0 +1,66 @@
+;
+; CueMidiFilter.inf
+;
+; Extension INF that adds a lower filter to the MIDI function (MI_03) of
+; SPARTAN CUE (USB\VID_2360&PID_7011). The existing usbaudio installation is
+; not modified. Matches only bcdDevice 0x0651 firmware (REV_0651).
+;
+
+[Version]
+Signature   = "$WINDOWS NT$"
+Class       = Extension
+ClassGuid   = {e2f84ce7-8efa-411c-aa69-97454ca4cb57}
+Provider    = %ManufacturerName%
+ExtensionId = {0425869e-c4b6-413d-9315-dc834409b9e2}
+CatalogFile = CueMidiFilter.cat
+DriverVer   =
+PnpLockdown = 1
+
+[DestinationDirs]
+DefaultDestDir = 13
+
+[SourceDisksNames]
+1 = %DiskName%,,,""
+
+[SourceDisksFiles]
+CueMidiFilter.sys = 1,,
+
+[Manufacturer]
+%ManufacturerName% = Standard,NT$ARCH$.10.0...22000 ; Windows 11 or later
+
+[Standard.NT$ARCH$.10.0...22000]
+%CueMidiFilter.DeviceDesc% = CueMidiFilter_Install, USB\VID_2360&PID_7011&REV_0651&MI_03
+
+[CueMidiFilter_Install.NT]
+CopyFiles = CueMidiFilter_CopyFiles
+
+[CueMidiFilter_CopyFiles]
+CueMidiFilter.sys
+
+[CueMidiFilter_Install.NT.Filters]
+AddFilter = CueMidiFilter,, CueMidiFilter_FilterInstall
+
+[CueMidiFilter_FilterInstall]
+FilterPosition = Lower
+
+[CueMidiFilter_Install.NT.Services]
+AddService = CueMidiFilter,, CueMidiFilter_Service_Inst
+
+[CueMidiFilter_Service_Inst]
+DisplayName   = %CueMidiFilter.SVCDESC%
+ServiceType   = 1  ; SERVICE_KERNEL_DRIVER
+StartType     = 3  ; SERVICE_DEMAND_START
+ErrorControl  = 1  ; SERVICE_ERROR_NORMAL
+ServiceBinary = %13%\CueMidiFilter.sys
+
+[CueMidiFilter_Install.NT.Wdf]
+KmdfService = CueMidiFilter, CueMidiFilter_wdfsect
+
+[CueMidiFilter_wdfsect]
+KmdfLibraryVersion = $KMDFVERSION$
+
+[Strings]
+ManufacturerName         = "AudioProbe MIDI Filter"
+DiskName                 = "CueMidiFilter Installation Disk"
+CueMidiFilter.DeviceDesc = "SPARTAN CUE USB MIDI Descriptor Filter"
+CueMidiFilter.SVCDESC    = "CueMidiFilter Service"
